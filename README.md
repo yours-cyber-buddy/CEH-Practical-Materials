@@ -50,3 +50,5 @@ This repository is built for continuous learning. Feel free to explore, adapt, a
 ---
 
 📌 *Happy hacking and learning!*
+![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-blue.svg)
+
