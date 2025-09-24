@@ -1,0 +1,427 @@
+🌩️ Cloud Computing – Overview
+
+Think of cloud computing as “renting computers, networks, and services over the internet” instead of buying and maintaining them yourself.
+
+
+🔹 What is Cloud Computing?
+
+Cloud computing delivers IT services (like servers, storage, databases, networking, software, AI tools, etc.) on demand through the internet, usually on a pay-as-you-go basis.
+
+
+🔹 Cloud Service Models (SPI Model)
+
+IaaS (Infrastructure as a Service)
+You rent hardware: virtual machines, storage, networking.
+Example: AWS EC2, Microsoft Azure VM, Google Compute Engine.
+You manage OS, apps, and data.
+
+PaaS (Platform as a Service)
+You rent a ready-to-use environment: runtime, database, dev tools.
+Example: AWS Elastic Beanstalk, Google App Engine, Heroku.
+You only manage applications and data, not the underlying OS.
+
+SaaS (Software as a Service)
+You rent software apps fully managed by the provider.
+Example: Gmail, Office 365, Salesforce, Dropbox.
+You only use the software—no backend control.
+
+
+🔹 Cloud Deployment Models
+
+Public Cloud – Owned by third-party providers (AWS, Azure, GCP).
+Private Cloud – Dedicated infrastructure for one organization.
+Hybrid Cloud – Mix of public + private.
+Community Cloud – Shared by organizations with similar needs (e.g., government agencies).
+
+
+🔹 Cloud Security Challenges
+
+Data breaches (unauthorized access).
+Misconfiguration (leaving S3 buckets open).
+Insider threats (employees misusing privileges).
+Account hijacking (weak credentials, stolen tokens).
+Insecure APIs (exposed cloud APIs can be exploited).
+Lack of visibility (difficulty monitoring multi-cloud setups).
+
+
+🔹 Cloud Security Responsibilities (Shared Responsibility Model)
+
+Cloud Provider is responsible for:
+Physical security of servers
+Networking hardware
+Virtualization platform
+
+Customer is responsible for:
+Identity and access management (IAM)
+Data security (encryption, backups)
+Application security (patching, monitoring)
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+☁️ Topic 1: Cloud Threats & Vulnerabilities
+
+Think of the cloud like a shared apartment building:
+
+The building (infrastructure) is owned by the landlord (cloud provider).
+Tenants (customers) rent rooms (VMs, storage, services).
+If one tenant leaves their door open or hacks into another, everyone’s at risk.
+
+
+🔹 Common Threats in Cloud
+
+Data Breaches
+Sensitive data exposed due to misconfigured cloud storage (e.g., AWS S3, Azure Blob).
+Example: Leaving storage buckets open to the public.
+
+Data Loss
+Accidental deletion, ransomware, or cloud outage.
+No backup = permanent loss.
+
+Account Hijackin
+Stolen cloud credentials (via phishing, brute force, leaked keys).
+Attacker gains control of cloud resources.
+
+Insecure APIs
+Cloud services rely heavily on APIs. If poorly secured, attackers can exploit them to gain access.
+
+Insider Threats
+Malicious or careless employees misusing access rights.
+
+Abuse of Cloud Services
+Attackers rent cloud servers to launch DDoS, spam, or crypto mining.
+
+Denial of Service (DoS/DDoS)
+Flooding cloud apps to exhaust resources.
+
+Shared Technology Vulnerabilities
+Multi-tenant environments may allow attackers to escape from one VM into another (hypervisor attacks).
+
+
+🔹 Vulnerabilities in Cloud Systems
+
+Misconfigured cloud storage (S3 buckets, open MongoDB/Elasticsearch).
+Weak Identity & Access Management (IAM) (no MFA, excessive privileges).
+Unpatched OS or services in cloud-hosted VMs.
+Unencrypted data in transit or at rest.
+Default credentials left unchanged in cloud apps or databases.
+
+✅ Key Note
+
+The biggest cloud security risk = Misconfiguration.
+Example: An S3 bucket with sensitive customer data set to “public”.
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+☁️ Topic 2: Cloud Attacks
+
+Attackers use many traditional hacking methods (phishing, brute force, malware), but also cloud-specific ones.
+
+
+🔹 1. Cloud Malware Injection Attack
+
+Attacker uploads a malicious service or VM image into the cloud (pretending it’s legitimate).
+
+When customers use it, attacker gains access to their data or environment.
+
+Example: Injecting a backdoored virtual machine image in AWS Marketplace.
+
+
+🔹 2. Cloud Account Hijacking
+
+Stealing cloud credentials via:
+Phishing
+Stolen API keys
+Brute force attacks
+
+Once inside, attacker can steal data, spin up resources (crypto mining), or shut down services.
+
+
+🔹 3. Man-in-the-Cloud (MITC) Attack
+
+Uses cloud synchronization tokens (Dropbox, Google Drive, OneDrive).
+
+Attacker steals the sync token (not password).
+
+Once token is stolen, files sync automatically to attacker’s machine.
+
+
+🔹 4. Denial of Service (DoS/DDoS)
+
+Cloud services rely on availability.
+
+Attacker floods apps/servers until they’re unavailable.
+
+Example: Flooding AWS EC2 instance hosting a website.
+
+
+🔹 5. Side Channel Attacks
+
+Exploiting multi-tenant architecture.
+
+Example: Attackers on the same physical host use CPU cache timing to extract data from another tenant’s VM.
+
+
+🔹 6. Insider Attacks
+
+Cloud admin or malicious insider abuses privileges.
+
+Example: Admin downloads sensitive data from customer storage.
+
+
+🔹 7. Sniffing Cloud Traffic
+
+If encryption is weak, attacker can sniff data in transit (between user ↔ cloud).
+
+
+🔹 8. Misconfiguration Exploits
+
+Attackers scan for open cloud services (S3 buckets, Elasticsearch, Redis, MongoDB).
+
+Tools like Shodan can find these.
+
+
+✅ Tip
+
+In cloud hacking, the most exam-relevant attacks are:
+
+Malware Injection
+MITC (Man-in-the-Cloud)
+Account Hijacking
+Exploiting Misconfigurations
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+🌐 Topic 3: Cloud Security Controls
+
+Think of cloud security controls like layers of locks and guards in that shared apartment building analogy we’ve been using:
+
+Threats = robbers, leaks, or mistakes.
+Controls = CCTV, locks, security guards, fire alarms.
+
+
+Cloud security controls are generally divided into three categories:
+
+
+🔹 1. Preventive Controls
+(stop threats before they happen)
+
+Identity and Access Management (IAM) → Enforce strong authentication, MFA, least privilege.
+
+Encryption → Data encrypted at rest (disk, storage) and in transit (SSL/TLS).
+
+Network Security → Firewalls, Security Groups, VPNs.
+
+Configuration Management → Secure defaults, automated tools to catch misconfigs.
+
+
+🔹 2. Detective Controls
+(help you find if something suspicious is happening)
+
+Monitoring and Logging → CloudTrail (AWS), Stackdriver (GCP), Azure Monitor.
+
+Intrusion Detection Systems (IDS) → Alerts on unusual traffic.
+
+SIEM Integration → Centralized log analysis (Splunk, ELK, etc.).
+
+
+🔹 3. Corrective Controls
+(help recover and respond after an incident)
+
+Backups & Snapshots → Quickly restore lost or corrupted data.
+
+Disaster Recovery Plans → Run workloads in multiple regions.
+
+Patch Management → Fix vulnerabilities rapidly.
+
+Incident Response Playbooks → Predefined steps to contain breaches.
+
+
+🔹 4. Administrative Controls
+(human + policy-based)
+
+Security Policies → Define who can do what in the cloud.
+
+User Training → Prevent phishing & insider mistakes.
+
+Third-party Audits → Compliance with standards (ISO 27001, SOC 2, GDPR, HIPAA).
+
+
+🔹 5. Cloud-native Security Services
+(what providers offer to customers)
+
+AWS → GuardDuty, Inspector, Macie, Shield.
+
+Azure → Security Center, Sentinel.
+
+GCP → Security Command Center.
+
+
+📌 In CEH terms →
+Cloud security controls = the countermeasures to threats & attacks in cloud.
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+☁️ Topic 4: Cloud Penetration Testing (Overview)
+
+Pen testing in the cloud is not the same as testing your own on-prem network. Because in cloud you don’t own the infrastructure, you share it with others. That means you must follow the provider’s rules.
+
+
+🔹 1. Cloud Pen Testing Approaches
+
+a) External Pen Testing
+
+Test from the internet, just like an outsider/attacker.
+Example: Testing exposed services like S3 buckets, APIs, storage endpoints, VPN gateways.
+
+b) Internal Pen Testing
+
+Testing from inside the cloud environment (after you gain access).
+Example: Once in a compromised VM, checking lateral movement, privilege escalation.
+
+c) Application-Level Pen Testing
+
+Focus on web apps, APIs, mobile apps hosted in the cloud.
+Example: SQL injection in a cloud-hosted DB, insecure API endpoints.
+
+d) Cloud Configuration Review
+
+Looking for misconfigured IAM roles, storage permissions, security groups.
+Example: Publicly writable S3 buckets, overly permissive firewall rules.
+
+
+🔹 2. Challenges in Cloud Pen Testing
+
+Authorization Required → You must get written permission from provider & client (testing without permission can violate laws).
+
+Shared Responsibility → You test only what belongs to the client (apps, data, configs), not the underlying hardware.
+
+Dynamic Nature → Cloud resources scale up/down; IPs can change.
+
+Multi-tenancy → Can’t touch other tenants’ resources by mistake.
+
+Limited Tools → Some scanning tools may be blocked by provider firewalls.
+
+
+🔹 3. Key Tools for Cloud Pen Testing
+
+ScoutSuite → Multi-cloud auditing tool (AWS, Azure, GCP).
+
+Prowler → AWS security best practices checker.
+
+Pacu → AWS exploitation framework.
+
+CloudSploit → Cloud security posture management.
+
+Burp Suite / OWASP ZAP → Web/API testing.
+
+
+📌 In CEH exam, expect questions like:
+
+“Which cloud pen testing approach allows testing of client’s applications only?” → Application-level.
+“Why is pen testing restricted in cloud?” → Shared responsibility & legal agreements.
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+☁️ Topic 5: Cloud Security Best Practices
+
+These are the defensive measures organizations follow to secure cloud environments. Think of them as the "Golden Rules" for cloud safety.
+
+
+🔹 1. Identity & Access Management (IAM)
+
+Enforce least privilege (give minimum permissions needed).
+
+Use multi-factor authentication (MFA) for all accounts.
+
+Regularly rotate access keys and passwords.
+
+Avoid using root/admin accounts for daily tasks.
+
+
+🔹 2. Data Protection
+
+Encrypt data at rest (storage) and in transit (network).
+
+Use provider services like AWS KMS, Azure Key Vault, GCP KMS for key management.
+
+Classify data → Sensitive vs. Non-sensitive, and apply controls accordingly.
+
+
+🔹 3. Network Security
+
+Configure security groups / firewalls properly (block by default, allow minimal).
+
+Use VPN or private endpoints instead of exposing services directly.
+
+Deploy IDS/IPS, WAF (Web Application Firewall) for cloud apps.
+
+Segment networks using VPCs, subnets, and NACLS.
+
+
+🔹 4. Monitoring & Logging
+
+Enable cloud provider logging:
+
+AWS → CloudTrail, GuardDuty
+
+Azure → Monitor, Security Center
+
+GCP → Cloud Audit Logs
+
+Monitor for suspicious logins, API calls, privilege escalation attempts.
+
+Use SIEM integration for centralized log analysis.
+
+
+🔹 5. Backup & Disaster Recovery
+
+Take regular backups and test recovery.
+
+Use multi-region replication for high availability.
+
+Implement incident response plans for cloud breaches.
+
+
+🔹 6. Compliance & Governance
+
+Follow compliance standards: ISO 27017, SOC 2, PCI DSS, HIPAA, GDPR (depending on business).
+
+Use cloud security posture management (CSPM) tools to check misconfigurations.
+
+
+📌 CEH Exam Focus:
+
+Expect questions like:
+
+“What is the best way to minimize over-permissioning in cloud?” → Least privilege principle.
+
+“Which AWS service provides logging of API calls?” → CloudTrail.
+
+“Which practice ensures data confidentiality?” → Encryption.
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

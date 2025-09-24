@@ -1,0 +1,617 @@
+
+HACKING WIRELESS NETWORKS:
+
+
+🔹 Step 1: Basics of Wireless Networks
+
+Think of Wi-Fi like a walkie-talkie party where devices talk to each other through invisible radio waves instead of wires.
+
+Each Wi-Fi network is an Access Point (AP) (like the DJ of the party).
+
+Devices (laptops, phones) are clients that connect to the AP.
+
+The communication happens over 802.11 standards (the Wi-Fi rulebook).
+
+📶 Wi-Fi Standards (802.11 family):
+
+802.11a – Old, 5 GHz, up to 54 Mbps.
+
+802.11b – Old, 2.4 GHz, up to 11 Mbps.
+
+802.11g – 2.4 GHz, up to 54 Mbps.
+
+802.11n (Wi-Fi 4) – 2.4 & 5 GHz, up to 600 Mbps.
+
+802.11ac (Wi-Fi 5) – 5 GHz, gigabit speeds.
+
+802.11ax (Wi-Fi 6/6E) – Latest, works on 2.4/5/6 GHz, faster and more secure.
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+🔹 Step 2: Wireless Security Protocols
+
+These are the locks on the Wi-Fi door:
+
+WEP (Wired Equivalent Privacy)
+
+Oldest, uses weak RC4 encryption.
+
+Easily broken with tools in minutes.
+
+Like using a rusty lock on your house.
+
+WPA (Wi-Fi Protected Access)
+
+Temporary improvement over WEP.
+
+Still weak; can be cracked with dictionary/brute-force attacks.
+
+WPA2
+
+Stronger AES encryption (CCMP).
+
+Still vulnerable if a weak password is used (dictionary attacks).
+
+WPA3
+
+Latest and strongest.
+
+Uses SAE (Simultaneous Authentication of Equals).
+
+Much harder to crack, but not fully immune.
+          WPA3: what’s still attackable?
+
+WPA3 fixes most offline cracking, but two important angles remain:
+
+1. Transition-mode downgrade (WPA3/WPA2 mixed mode)
+
+If an SSID allows both WPA3-SAE and WPA2-PSK, clients can be tricked to connect with WPA2. Then you capture a normal WPA2 handshake/PMKID and run a dictionary attack. This isn’t “breaking” WPA3; it abuses mixed mode. Mitigation: disable transition mode; enable PMF as Required. 
+
+
+2. Protocol/implementation issues that affect WPA3 too
+
+FragAttacks (frame fragmentation/aggregation design flaws) allow limited frame injection/forgery on protected Wi-Fi. Not a PSK crack, but can aid data exfiltration or traffic manipulation. Patch devices/firmware. 
+
+
+Dragonblood (SAE side-channels) enabled password partitioning and downgrades on early WPA3; vendors shipped fixes (SAE “H2E”, constant-time). Keep firmware updated and avoid weak groups/transition mode. 
+
+Note on deauth: WPA3 mandates Protected Management Frames (PMF/802.11w), so classic deauth/disassoc attacks should fail when PMF is Required. (You can still RF-jam the channel.) 
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+🔹 Step 3: Wireless Threats
+
+
+Step-by-step: common Wi-Fi threats (how they actually play out)
+
+1) Rogue Access Point (inside a company)
+
+Goal: Plant an AP on the internal LAN so victims join “trusted” Wi-Fi and their traffic exits through your box.
+You need: Small AP or laptop (hostapd/Wi-Fi Pineapple), upstream Internet/NAT.
+
+Steps:
+
+1.Survey the environment (SSIDs, channels, security).
+
+2.Cable your rogue AP to an internal port (or tether to 4G).
+
+3.Clone the corporate SSID name (don’t reuse their security if you’re just providing open guest bait), set same channel or adjacent with stronger signal.
+
+4.DHCP/NAT on the rogue box; enable logging/forward proxy if testing inspection.
+
+5.Observe who associates; monitor DNS/HTTP to demonstrate risk (never collect creds unless explicitly in scope).
+
+Why it works: Users auto-join familiar names; poor NAC/port security.
+
+Stops: 802.1X port-security, wireless NAC, RF monitoring, unique SSIDs per band/VLAN, client allowlists.
+
+
+
+
+2) Evil Twin (look-alike AP)
+
+Goal: Lure clients to your stronger clone of a real SSID.
+You need: AP card that supports AP mode, better signal than the real AP, and (optionally) a captive portal phishing page.
+
+Steps:
+
+1.Recon SSID, BSSID, channel, security.
+
+2.Broadcast same SSID on same channel with higher power.
+
+3.(Legacy) Send deauths to force roam; WPA3+PMF blocks these, so use signal lure or mild RF jamming instead.
+
+4.For WPA2-Personal: you won’t “sniff” the PSK from the twin; instead you can phish on a fake captive portal, or (if the real SSID is in transition mode) force WPA2 and capture a crackable handshake.
+
+5.For WPA2/WPA3-Enterprise: run a fake RADIUS (e.g., EAP-PEAP/MSCHAPv2) to capture challenges for offline cracking if clients don’t validate server certs.
+
+Stops: Disable transition mode; enforce PMF=Required; HSTS/HTTPS with cert pinning; EAP-TLS with strict server-cert validation.
+
+
+
+
+3) Packet sniffing (Wireshark/airodump): can you see “everything”?
+
+Short answer:
+
+As a normal connected client, you see your unicast + broadcast/multicast. You don’t see other clients’ unicast frames.
+
+To capture all frames on a channel you need monitor mode. To decrypt protected traffic you also need the keys.
+
+You need: Wi-Fi adapter that supports monitor mode, Linux/macOS, airmon-ng/airodump-ng or Wireshark.
+
+Steps (802.11 capture)
+
+1.Put the card in monitor mode: airmon-ng start wlan0 → interface like wlan0mon.
+
+2.Lock to the target channel: airodump-ng -c 6 wlan0mon (or choose the AP’s channel).
+
+3.Capture with airodump-ng or Wireshark on the monitor interface.
+
+4.Decrypting traffic:
+
+     WEP: immediate if you have enough IVs (legacy).
+
+     WPA2-PSK: you need the PSK and a captured 4-way handshake (or PMKID) to decrypt in Wireshark.
+
+     WPA3-SAE: you need the password and the SAE/4-way handshakes; without that, traffic stays opaque. Past       captures remain safe due to PFS.
+
+     If the SSID is in transition mode and you coerce WPA2, you can decrypt like WPA2 after cracking the PSK.
+
+Stops: Use strong passwords, disable transition mode, require PMF, keep clients/APs patched (FragAttacks).
+
+
+
+4) Man-in-the-Middle (MITM)
+
+Goal: Intercept/alter traffic.
+You need: Position “in the path” (rogue AP/evil twin), or L2 attacks on open networks.
+
+Steps:
+
+1.Open or captive networks: ARP spoof/redirect to your gateway; run mitmproxy/Bettercap to inspect HTTP.
+
+2.Encrypted PSK networks: become the AP (evil twin/rogue portal). You can’t decrypt existing client sessions without keys, so you typically phish credentials or proxy new HTTP.
+
+3.Enterprise (EAP-PEAP/MSCHAPv2): evil twin a RADIUS and harvest challenge/response if clients skip server-cert validation; attempt offline crack.
+
+4.Modern web limits: HSTS/HTTPS makes SSL-strip ineffective; focus on captive-portal gullibility or misconfigurations.
+
+Stops: HTTPS everywhere, strict EAP server-cert validation/EAP-TLS, disable auto-join, DNS-over-HTTPS on clients.
+
+
+
+5) DoS / Jamming
+
+Goal: Knock clients/APs offline or force roaming.
+You need: Any 2.4/5 GHz transmitter; tools like mdk4 for management-frame floods.
+
+Steps
+
+1.Legacy deauth/disassoc floods: trivial on WPA2/Open.
+
+2.WPA3 + PMF: deauth frames are protected → attack is blocked; RF jamming (noise) still works but is illegal in many countries.
+
+3.Beacon/probe floods can cause instability; targeted channel jamming causes disconnections.
+
+Stops: PMF=Required, band steering, spectrum analysis & WIPS to locate jammers; lawful reporting.
+
+
+
+6) Replay
+
+Goal: Resend captured frames to cause actions.
+
+Reality: WPA2/WPA3 include replay protection via sequence numbers. Only certain implementation/standard flaws (e.g., FragAttacks) allow for limited forged/injected frames. Patch all gear.
+
+
+
+7) Password attacks (WEP/WPA2/WPA3)
+
+WEP: capture IVs → crack with Aircrack-ng/WEPCrack/WepAttack in minutes.
+
+WPA2-PSK: capture 4-way or PMKID, then dictionary attack (Aircrack-ng/Hashcat/Pyrit).
+
+WPA3-SAE: no general offline crack; only feasible when:
+
+SSID is in transition mode → downgrade to WPA2 and crack; or
+
+specific Dragonblood-style side-channel or unpatched implementations.
+Use long, random passphrases regardless.
+
+
+
+Where the tools fit:
+
+Discovery/sniffing: airomon-ng/airmon-ng, airodump-ng, Wireshark, Kismet
+
+Cracking (legacy/PSK): Aircrack-ng, Pyrit, WEPCrack, WepAttack
+
+AP/Evil Twin: hostapd, airbase-ng, wifiphisher, (hardware) Wi-Fi Pineapple
+
+MitM: Bettercap, mitmproxy
+
+DoS testing: mdk4
+
+Commercial: Portable Penetrator (automates auditing/reporting)
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Wireless Hacking Methodology
+
+
+🔹 Step 1: Reconnaissance (Discovering Wireless Networks)
+
+Goal: Identify available wireless networks in the area.
+
+How it’s done:
+Scanning for SSIDs (network names), BSSIDs (MAC addresses), channel numbers, and signal strength.
+Detecting whether the network uses WEP, WPA, WPA2, or WPA3.
+
+Tools:
+airodump-ng (from Aircrack suite)
+Kismet (passive network discovery) 
+inSSIDer (Windows Wi-Fi discovery tool)
+
+👉 Example command (with Airodump-ng):      
+                                       airodump-ng wlan0
+
+ This will show all nearby wireless networks, their encryption, and connected clients.
+
+
+🔹 Step 2: Recon of Clients (Finding Connected Devices)
+
+Goal: Identify devices (laptops, phones, IoT devices) connected to target Wi-Fi.
+
+Why? Because attacking through a connected client is sometimes easier than directly cracking the router.
+
+Tools:
+
+       airodump-ng --bssid <target BSSID> --channel <CH> wlan0
+
+👉 Example:
+             airodump-ng --bssid 00:11:22:33:44:55 --channel 6 wlan0
+
+  This shows all devices connected to that AP.
+
+
+
+🔹 Step 3: Packet Sniffing (Capturing Traffic)
+
+Goal: Capture packets from the wireless network for later analysis.
+
+Tools:
+
+      Wireshark (GUI traffic analyzer)
+
+      tcpdump (CLI packet capture)
+
+Requirement: You need a wireless adapter in monitor mode.
+
+Process:
+
+        Capture handshakes (WPA/WPA2/WPA3 authentication traffic).
+
+        Capture data frames (if encryption is weak, like WEP).
+
+👉 Example with Airodump-ng:
+                             airodump-ng --bssid 00:11:22:33:44:55 --channel 6 -w capture wlan0
+
+This will save captured packets into a file (capture.cap) for cracking later.
+
+
+
+🔹 Step 4: Attacking (Different Techniques Based on Encryption)
+
+WEP Attacks: Use IV (Initialization Vector) weaknesses to crack the key.
+
+WPA/WPA2 Attacks: Capture 4-way handshake and then crack using a dictionary attack (aircrack-ng).
+
+WPA3 Attacks:
+ More secure, but vulnerable to:
+              Dragonblood attack (downgrade WPA3 → WPA2, side-channel leaks).
+              Rogue AP attacks.
+
+Rogue AP / Evil Twin: Hacker sets up a fake AP with the same SSID to trick users into connecting.
+
+Deauthentication Attack: Disconnects users so they reconnect, forcing a handshake capture.
+
+👉 Example (Deauth attack with Aireplay-ng):
+                                              aireplay-ng --deauth 10 -a <BSSID> -c <Client_MAC> wlan0
+This sends 10 deauthentication packets to a client, disconnecting it.
+
+
+
+🔹 Step 5: Gaining Access
+
+Once the password (PSK) is cracked, or a rogue AP is successful, attacker connects to the network.
+
+They can now sniff all traffic, launch Man-in-the-Middle attacks, and scan internal systems.
+
+
+
+🔹 Step 6: Post-Exploitation
+
+Escalate attacks by:
+
+Capturing sensitive traffic (username/passwords, cookies).
+
+Pivoting to internal machines.
+
+Setting up backdoors or maintaining persistence.
+
+
+⚡ So in summary, the wireless hacking methodology is:
+Recon → Client Discovery → Packet Sniffing → Attacking (WEP/WPA/WPA2/WPA3/Evil Twin) → Gaining Access → Post-Exploitation
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+🔧 Wireless Hacking Tools:
+
+1. Aircrack-ng Suite
+
+One of the most widely used toolsets for wireless hacking. 
+
+It includes:
+       airmon-ng → Enables monitor mode on wireless cards.                                      airmon-ng start wlan0
+
+       airodump-ng → Captures raw wireless packets.                                             airodump-ng wlan0mon
+       
+       aireplay-ng → Injects/replays packets (used for attacks like de-authentication).        aireplay-ng --deauth 10 -a <AP_MAC> wlan0mon
+ 
+       aircrack-ng → Cracks WEP/WPA/WPA2 keys using dictionary/brute-force.                    aircrack-ng -w wordlist.txt -b <AP_MAC> capture.cap
+
+
+2. Wireshark
+
+Packet sniffer to capture and analyze wireless traffic.
+
+Used to look for cleartext credentials, abnormal packets, and handshake captures.
+
+Needs monitor mode to capture wireless frames (can’t just “connect and see everything” unless on hub/AP with promiscuous monitoring).
+
+
+
+3. Kismet
+
+Wireless network detector, sniffer, and IDS.
+
+Can detect hidden SSIDs, rogue access points, and wireless attacks.
+
+
+
+4. Fern WiFi Cracker
+
+GUI-based wireless cracking tool (built on aircrack-ng).
+
+Supports WEP, WPA/WPA2, and can even detect MITM attacks.
+
+
+
+5. Wifite
+
+Automates wireless attacks.
+
+Runs aircrack-ng, reaver, pyrit, etc., under the hood.
+
+Simple usage:
+                 wifite
+
+
+
+6. Reaver
+
+Used for WPS brute-force attacks (PIN cracking).
+
+Targets routers with WPS enabled.
+
+             reaver -i wlan0mon -b <AP_MAC> -vv
+
+
+
+7. Pyrit
+
+High-speed WPA/WPA2 cracking tool (uses GPU acceleration).
+
+Used with captured handshakes. 
+            
+              pyrit -r capture.cap -i wordlist.txt attack_passthrough
+
+
+
+
+
+8. Portable Penetrator (commercial tool)
+
+Proprietary wireless auditing solution.
+
+Tests WEP/WPA/WPA2 security, rogue AP detection, and compliance checks.
+
+Mostly GUI-driven.
+
+
+
+9. WEPCrack
+
+One of the first tools for breaking WEP encryption.
+
+Based on RC4 algorithm weakness.
+
+
+
+10. CoWPatty
+
+WPA-PSK dictionary attack tool.
+
+Works with captured WPA handshake.
+            
+                  cowpatty -f wordlist.txt -r capture.cap -s SSID
+
+
+
+11. OmniPeek
+
+Commercial packet sniffer for wireless analysis.
+
+More advanced than Wireshark, used by enterprise analysts.
+
+
+
+12. AirJack
+
+Tool for injecting forged packets (used for MITM).
+
+Can perform DoS or hijack wireless sessions.
+
+
+
+13. Cain & Abel (Windows)
+
+Can recover WEP/WPA keys if hashes are captured.
+
+Old, but still referenced in CEH.
+
+
+
+
+✅ Summary of Attacks these Tools Enable
+
+WEP Cracking → Aircrack-ng, WEPCrack
+
+WPA/WPA2 Handshake Capture + Cracking → Aircrack-ng, Pyrit, CoWPatty, Wifite
+
+WPS PIN Attacks → Reaver, Wifite
+
+Packet Injection / Replay → Aireplay-ng, AirJack
+
+Sniffing / Traffic Capture → Wireshark, Kismet, OmniPeek
+
+Rogue AP Detection → Kismet, Portable Penetrator
+
+Automated Attacks → Wifite, Fern WiFi Cracker
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+🔐 Wireless Countermeasures
+
+
+1. Rogue Access Points (Evil Twin)
+
+Threat Recap: Attacker sets up a fake Wi-Fi AP with same SSID to trick users.
+
+Countermeasures:
+
+              Deploy Wireless Intrusion Detection/Prevention Systems (WIDS/WIPS) (e.g., AirMagnet, Aruba, Cisco WIPS).
+
+              Enforce 802.1X authentication (Enterprise WPA2/WPA3).
+
+              Conduct regular Rogue AP Scans.
+
+              Train users to verify SSIDs and use VPN when on Wi-Fi.
+
+
+
+2. Packet Sniffing (Wireshark, tcpdump)
+
+Threat Recap: Attacker captures unencrypted wireless traffic.
+
+Countermeasures:
+
+                Always use WPA3 (SAE) or at least WPA2-AES (never WEP).
+
+                Implement end-to-end encryption (HTTPS, TLS, VPN).
+
+		Disable open Wi-Fi networks in corporate environments.
+
+
+
+3. Man-in-the-Middle (MITM)
+
+Threat Recap: Hacker intercepts communication between victim & AP.
+
+Countermeasures:
+
+		Use certificate pinning & HSTS in applications.
+
+		Enable Mutual Authentication in enterprise Wi-Fi (EAP-TLS).
+
+		Implement VPN tunneling for all sensitive communication.
+
+
+
+4. Password Cracking (Dictionary, Brute Force, WPA handshake attacks)
+
+Threat Recap: Attackers capture WPA/WPA2/WPA3 handshakes & crack them.
+
+Countermeasures:
+
+		Enforce strong, complex Wi-Fi passwords (16+ characters, random).
+
+		Use WPA3-Enterprise where possible.
+
+		Limit failed login attempts (EAP methods).
+
+
+
+5. Denial of Service (Deauthentication, Jamming)
+
+Threat Recap: Hacker sends deauth frames or jams frequency.
+
+Countermeasures:
+
+		Use Management Frame Protection (802.11w) to prevent deauth attacks.
+
+		Deploy spectrum analyzers to detect jamming.
+
+		Configure WIPS auto-shutdown on detection.
+
+
+
+6. Replay Attacks
+
+Threat Recap: Captured packets are retransmitted to gain access.
+
+Countermeasures:
+
+		Use WPA3 with SAE (prevents replay attacks).
+
+		Enable session tokens & timestamps in applications.
+
+		Use intrusion detection systems to monitor anomalies.
+
+
+
+7. WPS Attacks (PIN Cracking)
+
+Threat Recap: Weak WPS PIN allows attackers to connect.
+
+Countermeasures:
+
+		Disable WPS completely.
+
+		Use manual WPA key entry instead of WPS.
+
+
+
+✅ Golden Rule:
+
+             Always prefer WPA3-Enterprise (EAP-TLS) + VPN + WIDS/WIPS for corporate networks.
+
+             For home use, WPA3-Personal with a long random password is sufficient.
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+

@@ -1,0 +1,306 @@
+What is IoT (Internet of Things)?
+
+Think of IoT as a huge digital ecosystem where physical devices are connected to the internet and can talk to each other (and to us).
+
+🔹 Examples of IoT devices:
+
+Smart Home → smart bulbs, Alexa/Google Home, smart TVs, cameras, smart locks
+
+Healthcare → pacemakers, insulin pumps, fitness trackers
+
+Industrial → factory sensors, SCADA systems, PLCs
+
+Transportation → connected cars, GPS trackers, smart traffic lights
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Why is IoT Important?
+
+It makes life easier (automation, monitoring, remote control).
+
+It powers smart cities, healthcare monitoring, and even defense systems.
+
+But — if hacked, it can cause real-world harm (not just data leaks, but physical danger).
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Why is IoT Vulnerable? (this is the key part hackers exploit)
+
+IoT devices are usually:
+
+Low security by default → hardcoded usernames/passwords (e.g., admin/admin).
+
+Weak or outdated protocols → Telnet, FTP, HTTP instead of secure ones.
+
+Unpatched firmware → vendors rarely push updates.
+
+Resource-limited hardware → can’t run heavy security protections like antivirus or firewalls.
+
+Massively exposed online → millions of devices searchable via Shodan, Censys, Zoomeye, etc.
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+IoT Protocols (attack surface)
+
+IoT devices use many communication protocols that hackers target:
+
+MQTT (1883) → Lightweight messaging protocol for IoT (often without authentication).
+
+CoAP (5683) → Constrained Application Protocol, used by sensors.
+
+UPnP (1900) → Universal Plug and Play, often abused for device discovery & attacks.
+
+Telnet (23), SSH (22) → Remote device access.
+
+HTTP/HTTPS (80/443) → Web dashboards for IoT devices.
+
+RTSP (554) → IP cameras/video streaming.
+
+Modbus (502), BACnet (47808) → Industrial IoT & SCADA protocols.
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Attack Example
+
+A hacker scans Shodan for open MQTT brokers on port 1883.
+
+Finds a smart bulb system with no authentication.
+
+Publishes a malicious command → turns bulbs on/off, or worse, triggers electrical damage.
+
+
+
+
+
+
+So, to summarize in simple terms:
+👉 IoT = devices connected to the internet.
+👉 Vulnerabilities = weak passwords, outdated firmware, insecure protocols, poor patching.
+👉 Entry points = ports & protocols like MQTT, CoAP, Telnet, HTTP, RTSP, etc.
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+🌐 IoT Information Gathering Platforms
+
+When hacking IoT, the first step is to find the devices. Hackers and pentesters use search engines & platforms that index IoT devices exposed online.
+
+Here are the key ones 👇
+
+       🔎 Shodan
+
+Called the “Google for Hackers.”
+
+Scans the internet and indexes devices by banner information.
+
+You can search for:
+
+Devices → webcams, routers, printers, smart TVs, industrial sensors
+
+Protocols → port:1883 (MQTT), port:23 (Telnet), port:502 (Modbus)
+
+Locations → country:IN or city:"New York"
+
+Manufacturers → title:"Dahua Camera"
+
+👉 Example search:
+                 port:554 has_screenshot:true
+      (finds open IP cameras streaming video via RTSP)
+
+
+       🔎 Censys
+
+Similar to Shodan but more research-focused.
+
+Scans all IPv4 space daily.
+
+Can search for IoT services like MQTT, CoAP, Modbus, etc.
+
+Provides detailed TLS/SSL certificate analysis (useful for finding device dashboards).
+
+👉 Example: Searching for devices with self-signed SSL certs → often IoT dashboards.
+
+
+       🔎 ZoomEye
+
+A Chinese IoT search engine.
+
+Good at finding devices missed by Shodan.
+
+Provides geolocation + service fingerprints.
+
+
+       🔎 Bevywise MQTTRoute (broker platform)
+
+This is not a search engine but a tool/platform to simulate/manage MQTT brokers.
+
+Pentesters use it for testing IoT environments, creating virtual brokers, and analyzing MQTT communication.
+
+Attackers might use a rogue broker to capture IoT device traffic.
+
+
+       🔎 Other Platforms
+
+Thingful → database for IoT device APIs.
+
+FOFA → another Chinese search engine for IoT & ICS.
+
+BinaryEdge → commercial tool indexing internet-facing assets (IoT included).
+
+
+
+📡 What Hackers Search For? (Protocols & Ports)
+
+Hackers filter these platforms by:
+
+MQTT (1883, 8883) → IoT messaging
+
+CoAP (5683) → sensors
+
+Telnet (23) → weak remote access
+
+RTSP (554) → IP cameras
+
+Modbus (502) → ICS/SCADA
+
+BACnet (47808) → building automation
+
+HTTP (80), HTTPS (443) → IoT dashboards
+
+UPnP (1900) → device discovery
+
+
+
+
+⚡ Quick Example Workflow:
+
+Search Shodan: port:1883 country:IN
+
+Find open MQTT brokers in India.
+
+Connect with mosquitto_sub or mosquitto_pub (MQTT tools).
+
+Intercept/control IoT messages.
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+🛠️ IoT Hacking Methodology
+
+IoT hacking follows almost the same stages as normal penetration testing, but adapted for devices + their communication protocols.
+
+
+1️⃣ Information Gathering (Reconnaissance)
+
+Goal:   Discover IoT devices, vendors, versions, and communication methods.
+
+Platforms/Engines:  Shodan, Censys, ZoomEye, FOFA, Thingful
+
+Look for:  Device banners (Server: Boa/0.94.14rc21)
+         IoT dashboards with weak logins
+         Exposed APIs
+         Protocols/Ports:  MQTT (1883), CoAP (5683), RTSP (554), Modbus (502), Telnet (23), UPnP (1900)
+
+Tools:
+     Shodan CLI/API
+     Nmap (for service/version detection)
+     Bevywise MQTT broker (for MQTT testing)
+
+
+2️⃣ Scanning & Enumeration
+
+Goal: Find open services, weak configs, and enumerate device details.
+
+Nmap Commands:
+               nmap -sV -p 23,80,1883,502 <target>
+        (detects Telnet, HTTP, MQTT, Modbus services)
+
+Tools:
+      Nmap IoT scripts (--script mqtt-subscribe, modbus-discover)
+      MQTT clients (mosquitto_sub, MQTT Explorer)
+      SNMPwalk (for SNMP-based IoT devices)
+
+Focus Areas:
+            Default creds on dashboards
+            Unauthenticated MQTT topics
+            Hardcoded API keys in requests
+
+
+
+3️⃣ Exploitation
+
+Goal: Gain control of the IoT device or communication.
+
+Attack Vectors:
+             Default/Weak Credentials → Telnet/SSH brute force (Hydra, Medusa)
+             Insecure Web Interfaces → SQLi, Command Injection, File Inclusion
+             Unencrypted Protocols → Sniff MQTT/CoAP traffic with Wireshark
+             Firmware Exploitation → Extract firmware, reverse engineer, search for hardcoded keys
+
+Example:
+Connect to open MQTT broker and publish malicious commands: 
+                 mosquitto_pub -h <target_ip> -t "door/lock" -m "unlock"
+
+
+
+
+4️⃣ Maintaining Access
+
+Goal: Establish persistence inside the IoT network.
+
+Methods:
+        Create hidden accounts on device
+        Upload backdoors/trojans to firmware
+        Install malicious update packages
+        Compromise central IoT controller/broker (so all devices can be controlled)
+
+
+5️⃣ Covering Tracks
+
+Goal: Hide activity to avoid detection.
+
+Techniques:
+          Delete logs from web interfaces
+          Modify MQTT/CoAP logs
+          Rotate proxy/VPN IPs while accessing devices
+          Mask malicious traffic inside normal IoT communication
+
+
+
+6️⃣ Countermeasures (Defense)
+
+Disable default credentials & Telnet
+
+Use TLS for MQTT/CoAP traffic
+
+Regular firmware updates
+
+Strong authentication on IoT dashboards
+
+Restrict device exposure (NAT, firewall rules)
+
+Monitor IoT traffic for anomalies
+
+
+
+⚡ In short, IoT hacking =
+                       Find device → Scan ports/protocols → Exploit weak creds/unencrypted traffic → Control device                     → Maintain persistence → Hide → Defenses
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+

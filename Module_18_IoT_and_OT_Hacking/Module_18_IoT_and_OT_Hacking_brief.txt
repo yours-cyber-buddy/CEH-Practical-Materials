@@ -1,0 +1,191 @@
+What is IoT?
+
+Internet of Things (IoT) = physical devices (sensors/actuators) + connectivity + software + cloud/services. Think smart cameras, thermostats, meters, door locks, industrial sensors, medical wearables—anything that senses or controls something and talks to a network.
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+How a typical IoT system is built
+
+Thing (device/endpoint): Microcontroller or embedded Linux/RTOS, sensors, radios (Wi-Fi/BLE/Zigbee/LoRa, etc.), local storage, web/API server or lightweight client.
+
+Gateway/Hub (optional): Bridges non-IP radios (Zigbee/Z-Wave/BLE) to IP (Ethernet/Wi-Fi/Cellular).
+
+Cloud / Backend: Device registry, MQTT/HTTP brokers, databases, dashboards, mobile/web APIs, update servers.
+
+Client apps: Mobile/desktop/web apps used by people; often the “front door” into the system.
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Why IoT is (uniquely) vulnerable
+
+Default/weak credentials & open services.
+
+Infrequent updates or no OTA at all; long device lifetimes.
+
+Lightweight protocols without encryption by default (e.g., plain MQTT or CoAP).
+
+Exposed management interfaces (Telnet/HTTP/RTSP/UPnP).
+
+Weak app/cloud security (insecure mobile apps/APIs).
+
+Physical access paths (UART/JTAG pins, debug shells).
+
+Supply chain/firmware signing gaps.
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Core protocols & “what to know” (with common ports)
+
+IP app protocols
+
+HTTP/HTTPS (80/443/8080/8443): device dashboards/APIs.
+
+MQTT/MQTTS (1883/8883 TLS): pub/sub telemetry; check if TLS/auth is enforced.
+
+CoAP/CoAPS (5683/5684 DTLS): REST-like for constrained devices.
+
+AMQP/AMQPS (5672/5671 TLS): reliable messaging (less common on endpoints).
+
+WebSockets (80/443): real-time control/feeds.
+
+RTSP (554): video streams from IP cameras.
+
+Telnet / SSH (23 / 22): remote shells; Telnet should be disabled; SSH hardened.
+
+FTP/TFTP (21 / 69): file/firmware transfer; TFTP often unauthenticated.
+
+SNMP (161/162): status/management; watch for public/private defaults.
+
+mDNS/Bonjour (5353/UDP): local service discovery.
+
+SSDP/UPnP (1900/UDP): device discovery/NAT punch-through.
+
+DNS/NTP/DHCP (53 / 123 / 67–68): infra protocols—misconfig can leak info.
+
+Industrial/Building (OT/IIoT)
+
+Modbus/TCP (502), DNP3 (20000), BACnet (47808/UDP), IEC-104 (2404): often unauthenticated/clear-text; segmentation is critical.
+
+Non-IP radios
+
+BLE (GATT services; pairing modes like Just Works are weak).
+
+Zigbee (2.4 GHz mesh; legacy Touchlink/join keys issues).
+
+Z-Wave (~900 MHz; S0 vs S2 security).
+
+LoRaWAN (EUIs/AppKeys; secure join & key mgmt matter).
+
+NFC/RFID (short-range auth/access control).
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Device categories you’ll encounter
+
+Consumer: cams, doorbells, bulbs, plugs, thermostats, speakers, robot vacuums.
+
+Enterprise: IP phones, printers, badge readers, conference systems.
+
+Healthcare: pumps, monitors, wearables (strict compliance required).
+
+Industrial/Building: PLCs/RTUs, HMIs, HVAC/BMS controllers, sensors.
+
+Automotive/Transport: telematics, chargers, V2X roadside units.
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Where attackers look (the attack surface)
+
+Device services: open ports, outdated web UIs, default creds.
+
+Update paths: unsigned firmware, OTA servers without auth.
+
+Cloud & APIs: weak auth/authorization, key leakage, misconfig buckets.
+
+Mobile apps: hardcoded secrets, insecure TLS, weak cert pinning.
+
+Radio links: rogue hubs/gateways, replay/jamming, insecure pairing.
+
+Local discovery: SSDP/mDNS leaks device type, model, and admin URLs.
+
+Physical: UART/JTAG pads, bootloader/secure-boot bypass.
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Internet-wide reconnaissance platforms (OSINT)
+
+Use these to map exposed devices/services (for defense, inventory, and risk reduction):
+
+Shodan – search banners by port/protocol, product/version.
+
+Censys – scan data + TLS cert search (helpful for finding fleets).
+
+ZoomEye, FOFA, BinaryEdge, ONYPHE – similar internet-scan datasets.
+
+Wigle – Wi-Fi SSID/BSSID geolocation (useful for locating IoT APs).
+
+Public app stores/repos – APK analysis for API endpoints/keys (ties to MobSF/JADX in mobile context).
+
+What to look for (conceptually): devices exposing MQTT (1883) without TLS, CoAP (5683), RTSP (554) camera streams, UPnP/SSDP (1900), Telnet (23), Modbus (502). Banner fields often reveal model/firmware—great for vuln triage.
+Note: You asked about “PayWise/PayWize.” I couldn’t verify it as an IoT-security reconnaissance tool; it appears to be a payments product name, not an IoT scanning platform. If you meant a different tool with a similar name, share it and I’ll include it later.
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Local network discovery (on your own authorized network)
+
+mDNS/SSDP/UPnP enumerate services (names often include model/brand).
+
+DHCP/ARP fingerprints show device vendors (MAC OUIs).
+
+Gateway logs (DHCP leases, Wi-Fi controller, NAC) reveal device inventory.
+
+Protocol beacons (MQTT/CoAP clients, RTSP announces) expose roles.
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Typical vulnerability themes (to recognize quickly)
+
+Credential issues: defaults, no lockout/MFA, weak device pairing.
+
+Transport security gaps: no TLS/DTLS or broken validation.
+
+Authorization flaws: device-to-cloud tokens reused or guessable.
+
+Update insecurity: unsigned/unencrypted firmware, weak boot chain.
+
+Insecure storage: secrets in clear text, exposed debug interfaces.
+
+Exposed media: open RTSP/HTTP snapshots on cameras.
+
+Legacy OT protocols: no auth; require strict segmentation.
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Defensive mindset (you’ll use these as countermeasures later)
+
+Asset inventory first: know every device, owner, purpose.
+
+Segment & isolate: separate IoT VLANs; no lateral to core/OT.
+
+Strong auth everywhere: change defaults, disable Telnet/UPnP, prefer SSH over keys, enforce TLS (MQTTS 8883 / CoAPS 5684).
+
+Patch/OTA policy: only signed firmware; timely updates.
+
+Least privilege & NAC: 802.1X, DHCP snooping, per-device ACLs, firewall egress allow-lists.
+
+Monitor & detect: log device behaviors; alert on new ports/protocols.
+
+Mobile/app/cloud hardening: secure APIs, secret management, cert pinning.
+
+Physical security: lock enclosures; block debug ports; enable secure boot.
+
+

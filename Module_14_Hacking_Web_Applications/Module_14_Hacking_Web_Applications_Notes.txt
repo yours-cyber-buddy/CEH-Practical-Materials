@@ -1,0 +1,128 @@
+🔑 Main Difference:
+
+Web Server hacking = Attacking the machine/building that hosts the site (misconfigurations, weak services, directory traversal).
+
+Web Application hacking = Attacking the program running inside (login systems, forms, sessions, databases).
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+🔑 Common Web Application Attacks
+
+Authentication Attacks
+
+Weak login mechanisms, brute force, credential stuffing.
+
+Tools: Hydra, Burp Suite Intruder, Medusa.
+
+
+
+Authorization Attacks
+
+Accessing resources you shouldn’t (IDOR, privilege escalation).
+
+Tools: Burp Suite, OWASP ZAP.
+
+Input Validation Attacks
+
+
+
+XSS (Cross-Site Scripting), command injection, file upload bypass.
+
+Tools: Burp Suite, XSStrike, Commix.
+
+Session Management Attacks
+
+Session hijacking, cookie manipulation.
+
+Tools: Burp Suite, OWASP ZAP, Bettercap.
+
+
+
+Business Logic Flaws
+
+Misusing application workflows (shopping cart manipulation, discount bypass).
+
+Tools: Mostly manual with Burp Suite.
+
+Web Server/Tech-Specific Attacks
+
+
+
+File inclusion (LFI/RFI), directory traversal, parameter tampering.
+
+Tools: Dirb, Gobuster, Nikto.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+📌 Web Application Hacking Methodology 
+
+
+Information Gathering (Fingerprinting the App)
+
+Identify frameworks, CMS, versions, plugins.
+
+Tools: WhatWeb, Wappalyzer, Burp, Netcraft.
+
+
+
+Attack Surface Mapping
+
+Discover directories, hidden files, parameters.
+
+Tools: Gobuster, Dirsearch, Burp Suite spider, FFUF.
+
+
+
+Testing for Authentication & Authorization Issues
+
+Brute force login, default creds, session tokens.
+
+Tools: Hydra, Burp Intruder, Medusa.
+
+
+
+Testing Input Validation
+
+Inject payloads in forms, headers, cookies.
+
+Tools: Burp, OWASP ZAP, sqlmap (SQLi), XSStrike (XSS), Commix (command injection).
+
+
+
+Testing for Session Management Weakness
+
+Steal/manipulate cookies, replay sessions.
+
+Tools: Burp Repeater, Bettercap, Cookie-Editor.
+
+
+
+
+Exploiting Logic Flaws
+
+Test cart manipulation, workflow bypass.
+
+Tools: Burp Repeater (manual).
+
+
+
+Maintaining Access
+
+Web shells, reverse shells if file upload works.
+
+Tools: Weevely, Pentestmonkey shells.
+
+
+
+Covering Tracks
+
+Clearing logs if possible.
+
+Tools: Manual or custom scripts.
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+

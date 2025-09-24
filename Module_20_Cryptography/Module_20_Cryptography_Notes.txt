@@ -1,0 +1,320 @@
+🔑 Introduction to Cryptography
+
+👉 Think of cryptography like secret codes we used as kids — writing a message in a way that only your friend who knows the trick (the key) can read it.
+
+In cybersecurity, cryptography is the science of securing data so that only the right people can access it.
+
+
+1. Why Cryptography?
+
+Protects Confidentiality → Only authorized users can read.
+
+Ensures Integrity → Data cannot be changed secretly.
+
+Provides Authentication → Confirms identity of sender/receiver.
+
+Enables Non-repudiation → Sender can’t deny sending a message.
+
+(You see how it supports the CIA triad: Confidentiality, Integrity, Availability — plus authentication & accountability.)
+
+
+2. Main Components
+
+Plaintext → Original readable message.
+
+Ciphertext → Encrypted, unreadable version.
+
+Key → The secret that locks/unlocks the data.
+
+Encryption → Process of turning plaintext into ciphertext.
+
+Decryption → Turning ciphertext back into plaintext.
+
+
+3. Types of Cryptography
+
+Symmetric Encryption → Same key for encryption & decryption. (Like one house key.)
+Example: AES, DES.
+
+Asymmetric Encryption → Two keys: Public key (shared) + Private key (secret).
+Example: RSA, ECC.
+
+Hashing → One-way transformation of data into a fixed-length string.
+Example: MD5, SHA-256.
+
+
+📌 In short: Cryptography = The art of keeping secrets safe in digital world.
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+🔐 Encryption Algorithms
+
+Encryption algorithms are like different “styles of locking data”. Some use one key, some use two, some are one-way.
+
+
+
+1. Symmetric Encryption (Secret Key)
+
+Uses one single key for both encryption & decryption.
+
+Very fast and good for bulk data (like files, databases).
+
+Problem: Key distribution (how to share the key secretly).
+
+🔸 Examples:
+DES (Data Encryption Standard) → old, weak now.
+3DES (Triple DES) → stronger than DES, but slow.
+AES (Advanced Encryption Standard) → very strong, widely used today.
+
+💡 Analogy → One house key used by both you and your friend. But if someone copies it, both are in danger.
+
+
+2. Asymmetric Encryption (Public Key Cryptography)
+
+Uses two keys:
+
+Public Key (for encryption, shared openly).
+
+Private Key (for decryption, kept secret).
+
+More secure key exchange but slower than symmetric.
+
+🔸 Examples:
+RSA (Rivest–Shamir–Adleman).
+ECC (Elliptic Curve Cryptography).
+Diffie-Hellman (for secure key exchange).
+
+💡 Analogy → Like having a mailbox: anyone can put letters inside (public key), but only you with the private key can unlock and read.
+
+
+3. Hashing
+
+One-way process, no decryption.
+
+Converts input into a fixed-length hash value.
+
+Used for passwords, integrity checks, digital signatures.
+
+🔸 Examples:
+MD5 (Message Digest 5) → weak, collisions possible.
+SHA-1 → also weak.
+SHA-2 (SHA-256, SHA-512) → strong, widely used.
+SHA-3 → latest standard.
+
+💡 Analogy → Like a fingerprint of data. You can compare fingerprints, but you can’t turn a fingerprint back into a person.
+
+
+4. Hybrid Encryption
+
+Combines symmetric + asymmetric:
+
+Use asymmetric (RSA, ECC) to securely share the symmetric key.
+
+Then use symmetric (AES) for actual data encryption.
+
+Used in SSL/TLS, HTTPS.
+
+💡 Analogy → You use an expensive, secure lock (asymmetric) just to share the house key, and then use that key for all daily locking/unlocking (symmetric).
+
+
+
+✅ Summary:
+
+Symmetric = Fast, one key.
+
+Asymmetric = Secure, two keys.
+
+Hashing = One-way, integrity.
+
+Hybrid = Best of both.
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+🌐 Public Key Infrastructure (PKI)
+
+PKI is basically the system that makes asymmetric encryption work in the real world.
+
+Think of it as the trust manager for public & private keys.
+
+
+🔑 What is PKI?
+
+PKI = Framework that manages digital certificates and public-key encryption.
+Ensures trust, authentication, and secure communication.
+Works with asymmetric cryptography (public/private key).
+
+
+📜 Main Components of PKI
+
+Certificate Authority (CA)
+    Like a trusted notary.
+    Issues, verifies, and revokes digital certificates.
+    Examples: DigiCert, Let’s Encrypt, GoDaddy.
+
+Registration Authority (RA)
+    Acts as a middleman between user and CA.
+    Verifies identity before certificates are issued.
+    
+Digital Certificates
+	An electronic ID card that proves ownership of a public key.
+	Example: SSL/TLS certificates used in HTTPS websites.
+
+Certificate Revocation List (CRL)
+	A blacklist of revoked/invalid certificates.
+	Key Pairs
+	Public key = shared openly.
+	Private key = kept secret.
+
+
+🔒 How PKI Works (Simple Steps)
+
+You generate a key pair (public & private key).
+You send your public key to a Certificate Authority (CA).
+CA verifies your identity and issues a digital certificate (binding your identity to your public key).
+Others can now trust your public key because it’s backed by the CA.
+If your key gets stolen, CA can revoke the certificate.
+
+
+💡 PKI Example in Real Life
+
+When you visit a HTTPS website:
+Browser checks the site’s SSL certificate issued by a trusted CA.
+If valid, browser establishes a secure connection (using hybrid encryption).
+This is why you see the lock symbol 🔒 in your browser.
+
+
+
+✅ In short:
+
+PKI = Digital trust system.
+
+Provides Authentication, Integrity, Confidentiality, and Non-repudiation.
+
+Without PKI → HTTPS, email encryption, VPNs would not be secure.
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+🔓 Cryptographic Attacks
+
+Even though cryptography is strong, attackers still try to break it or bypass it. Here are the main attack types:
+
+
+1.Brute Force Attack
+
+Attacker tries all possible keys until the right one is found.
+Example: Cracking a weak AES-128 key by testing billions of guesses.
+
+
+2.Dictionary Attack
+
+Uses a pre-built list of common keys or passwords.
+Faster than brute force.
+Rainbow Table Attack
+Pre-computed tables of hashes to reverse weak encryption/hashes.
+Example: Cracking old MD5 password hashes quickly.
+
+
+3.Replay Attack
+
+Attacker intercepts encrypted data and re-sends it later to fool the system.
+
+
+4.Chosen-Plaintext Attack (CPA)
+
+Attacker encrypts a chosen plaintext to see how ciphertext looks → used to find patterns.
+
+
+5.Chosen-Ciphertext Attack (CCA)
+
+Attacker chooses ciphertexts and gets them decrypted to learn about the key.
+
+
+6.Man-in-the-Middle (MITM) Attack
+
+Attacker secretly intercepts communication, can alter messages before forwarding.
+
+
+7.Side-Channel Attacks
+
+Attack not on the math, but on the implementation.
+Example: Measuring power consumption, timing, or electromagnetic leaks during encryption.
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+🔐 Cryptography Uses in Cybersecurity
+
+Cryptography isn’t just for secrets — it powers many security systems:
+
+
+1.Secure Communication (Confidentiality)
+
+HTTPS, VPNs, and messaging apps use encryption (SSL/TLS, IPSec, etc.).
+
+
+2.Authentication
+
+Digital certificates, SSH keys, and secure logins verify identity.
+
+
+3.Data Integrity
+
+Hash functions (SHA-256) ensure data isn’t tampered with.
+
+
+4.Non-repudiation
+
+Digital signatures prove who sent a message (can’t deny later).
+
+
+5.Email Security
+
+PGP, S/MIME encrypt and sign emails.
+
+
+6.Disk & File Encryption
+
+Tools like BitLocker, VeraCrypt keep files safe.
+
+
+7.Password Protection
+
+Systems store hashed + salted passwords.
+
+
+8.Cloud & Database Security
+
+Encrypting sensitive data at rest and in transit.
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+✅ Quick Analogy:
+Think of cryptography as a lock system.
+
+Encryption algorithms = different lock types (padlock, digital lock, vault).
+
+PKI = locksmith company that certifies your key.
+
+Cryptographic attacks = burglars trying to pick, duplicate, or bypass locks.
+
+Cryptography uses = doors you protect (bank vault, house door, phone, email).
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+

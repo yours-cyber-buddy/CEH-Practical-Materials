@@ -1,0 +1,85 @@
+CEH v13 – Module 8: Sniffing (Short Notes)
+
+
+1. Definition
+Sniffing = Capturing and analyzing network traffic to gather sensitive info (usernames, passwords, etc.).
+
+Can be passive (just listening) or active (manipulating traffic to capture more).
+
+------------------------------------------------------------------------------------------------------------
+
+2. How Sniffing Works
+Hub networks → All traffic is broadcast → Any host can capture it.
+
+Switch networks → Traffic is sent only to intended port → Requires attacks like MAC flooding to sniff.
+
+------------------------------------------------------------------------------------------------------------
+
+3. Types of Sniffing
+Passive Sniffing → No direct interaction, just listening (e.g., Wireshark in hub/Wi-Fi).
+
+Active Sniffing → Actively manipulates traffic to capture data (ARP poisoning, MAC flooding).
+
+------------------------------------------------------------------------------------------------------------
+
+4. Key Attacks & Techniques
+MAC Flooding → Overload switch CAM table → Fail-open mode → Acts like a hub.
+
+ARP Poisoning / Spoofing → Sends fake ARP replies → Redirects traffic through attacker.
+
+DHCP Starvation → Exhaust DHCP IP pool → Attacker sets up rogue DHCP server.
+
+Spoofing Attacks → ICMP, DNS, or STP spoofing to reroute traffic.
+
+-------------------------------------------------------------------------------------------------------------
+
+5. Vulnerable Protocols & Secure Versions
+HTTP → Use HTTPS
+
+Telnet → Use SSH
+
+FTP → Use SFTP/FTPS
+
+POP3/IMAP → Use POP3S/IMAPS
+
+SNMP v1/v2 → Use SNMPv3
+
+----------------------------------------------------------------------------------------------------------------
+
+6. Tools (Linux & Windows)
+Packet Capture / Analysis
+
+Wireshark → GUI-based packet analyzer.
+
+Tcpdump → CLI packet capture.
+
+Microsoft Network Monitor / Message Analyzer → Windows packet capture.
+
+Active Sniffing
+
+Ettercap → ARP poisoning, MITM sniffing.
+
+Cain & Abel (Windows) → ARP poisoning, password sniffing.
+
+Bettercap → Advanced MITM/sniffing tool.
+
+Macof (dsniff suite) → Performs MAC flooding.
+
+Wireless Sniffing
+
+Aircrack-ng suite → Packet capture & Wi-Fi cracking.
+
+Kismet → Wireless network detector/sniffer.
+
+-------------------------------------------------------------------------------------------------------
+
+7. Prevention Techniques
+Use encryption for data in transit (HTTPS, SSH, VPN).
+
+Implement port security on switches.
+
+Use static ARP entries for critical systems.
+
+Disable unused switch ports.
+
+Monitor network for unusual ARP/DHCP activity.

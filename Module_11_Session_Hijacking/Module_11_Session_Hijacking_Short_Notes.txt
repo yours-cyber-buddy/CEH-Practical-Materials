@@ -1,0 +1,233 @@
+1. Introduction to Session Hijacking
+
+Definition: Taking over a valid session between a client and server to gain unauthorized access.
+
+Real-world analogy: Like stealing someone’s train ticket mid-journey and taking their seat.
+
+Common session elements:
+
+       Session ID (in cookies, URL, hidden fields)
+
+       Tokens (JWT, CSRF tokens)
+
+Why it’s dangerous: Sessions often carry the authenticated state, so hijacking bypasses login entirely.
+
+
+---------------------------------------------------------------------------------------------------------------------------
+
+2. Session Hijacking Types
+
+Active Hijacking – Attacker actively takes over and interacts with the server using victim’s session.
+
+Passive Hijacking – Attacker silently listens and collects session info.
+
+Application Level – Stealing cookies/tokens via XSS, sniffing, or injection.
+
+Network Level – ARP spoofing, packet sniffing to capture session IDs.
+
+---------------------------------------------------------------------------------------------------------------------------
+
+3. Attack Techniques
+
+We discussed how attackers obtain session IDs:
+
+Session sniffing (via Wireshark, tcpdump, Ettercap, Bettercap)
+
+Cross-site scripting (XSS) to steal cookies
+
+Session fixation (forcing victim to use a session ID attacker already knows)
+
+Man-in-the-Middle (MITM) using ARP spoofing or DNS spoofing
+
+Man-in-the-Browser (malware-based hijacking)
+
+
+---------------------------------------------------------------------------------------------------------------------------
+
+4. Protection / Countermeasures
+
+Use HTTPS everywhere
+
+Regenerate session IDs after login
+
+Set HttpOnly and Secure cookie flags
+
+Implement short session timeouts
+
+Validate IP/User-Agent consistency
+
+
+---------------------------------------------------------------------------------------------------------------------------
+
+5. Tools & Commands Mentioned for This Module
+
+(From your earlier provided list)
+
+Bettercap / Ettercap – ARP spoofing & sniffing
+
+Wireshark / tcpdump – Packet capture to extract cookies/session IDs
+
+Burp Suite / OWASP ZAP – Intercept, modify, replay HTTP requests
+
+Hunt / Ferret & Hamster – Older but useful session hijacking tools
+
+NetWitness – Network forensics
+
+SSLstrip – Downgrading HTTPS to HTTP in MITM
+
+arpspoof (from dsniff package) – Basic ARP poisoning
+
+mitmproxy – Intercepting and modifying HTTP/S traffic
+
+
+---------------------------------------------------------------------------------------------------------------------------
+
+6. Deep-Dive: 
+
+  1.Bettercap for Session Hijacking
+
+We touched on how Bettercap can perform ARP spoofing, sniff credentials, and inject scripts to capture cookies.
+
+Example Bettercap commands for ARP spoof:
+
+ - bettercap -iface eth0           # set the interface
+ - net.probe on                    # Discover devices
+ - arp.spoof on                    # Start ARP spoofing
+ - arp.spoof.targets 192.168.1.5   # Target a victim
+ - net.sniff on                    # Capture packets (HTTP, cookies)
+
+Discussed integration with sniffing modules to grab HTTP cookies.
+
+
+  2. Ettercap
+
+Purpose: MITM attacks for packet sniffing and manipulation.
+
+Start (CLI mode):
+
+  ettercap -T -M arp /192.168.1.5/ /192.168.1.1/
+
+Basic Commands:
+
+-T → text mode
+
+-M arp → ARP spoofing mode
+
+Filters can be applied to capture cookies or inject code.
+
+
+  3. Wireshark
+
+Purpose: GUI-based packet analyzer to extract cookies/session IDs from captured traffic.
+
+Start:
+           wireshark
+
+Basic Steps:
+
+ Select the interface.
+
+ Apply filter:
+
+          http.cookie
+       or
+          tcp.port == 80
+
+
+  4. tcpdump
+
+Purpose: CLI packet capture for later analysis.
+
+Start Capture:
+             tcpdump -i eth0
+
+Capture HTTP Only:
+             tcpdump -i eth0 tcp port 80 -w capture.pcap
+
+Read File:
+             tcpdump -r capture.pcap
+
+
+  5. Burp Suite
+
+Purpose: Application-level interception and modification of HTTP/S requests, including cookies and tokens.
+
+Start:
+Launch Burp Suite, set browser proxy to 127.0.0.1:8080.
+
+Basic Usage:
+         Proxy → Intercept → Capture request
+         Right-click → "Send to Repeater" to modify cookies/session ID.
+
+  6. OWASP ZAP
+
+Purpose: Open-source alternative to Burp for intercepting, fuzzing, and scanning HTTP/S traffic.
+
+Start:
+      owasp-zap
+
+Basic Usage:
+            Set browser proxy to 127.0.0.1:8080
+            Use "Manual Request Editor" to replay with altered cookies.
+
+  7. Hunt
+
+Purpose: Older tool for sniffing and hijacking sessions in LAN environments.
+
+Start:
+      hunt
+
+
+Common Mode: Session watching and takeover in TCP connections.
+
+
+   8. Ferret & Hamster
+
+Purpose: Ferret sniffs credentials/cookies, Hamster replays them in browser.
+
+Ferret:
+       ferret -i eth0
+
+Hamster:
+         hamster
+
+Then visit http://127.0.0.1:1234 in browser to use stolen cookies.
+
+
+  9. NetWitness Investigator
+
+Purpose: Deep network forensics to search captured packets for session data.
+
+Use: 
+    Import .pcap files from Wireshark/tcpdump and search for Set-Cookie or Authorization headers.
+
+
+  10. SSLstrip
+
+Purpose: Downgrades HTTPS to HTTP to capture credentials/session IDs.
+Start:
+      sslstrip -l 8080
+
+Typical Flow: 
+        Combine with ARP spoofing so victim’s HTTPS traffic gets downgraded.
+
+
+   11. arpspoof (dsniff)
+
+Purpose: Redirect victim traffic through attacker for sniffing.
+
+Example:
+     arpspoof -i eth0 -t 192.168.1.5 192.168.1.1
+     (Victim IP first, then gateway)
+
+
+   12. mitmproxy
+
+Purpose: Interactive CLI/GUI MITM tool for HTTP/S inspection and modification.
+
+Start:
+       mitmproxy
+  
+View and modify requests/responses in real-time.
+
+--------------------------------------------------------------------------------------------------------------------------

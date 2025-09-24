@@ -1,0 +1,166 @@
+What is Social Engineering (short)
+
+Social engineering is using psychological manipulation to trick people into doing things or revealing information (passwords, access, clicking links, running attachments). Attack goal = bypass technical controls by exploiting people.
+
+
+-----------------------------------------------------------------------------------------------------------------
+
+
+How social engineering works — the mechanics (easy)
+
+Recon (OSINT) — attacker gathers info: names, org chart, email formats, tech stack, job roles, interests.
+
+Pretexting — create a believable story/identity (IT helpdesk, vendor, manager).
+
+Approach — contact the target (email, call, SMS, social media, physical).
+
+Build rapport / pressure — use friendliness, authority, urgency, or fear to get compliance.
+
+Action — target clicks, shares creds, opens attachment, grants access.
+
+Post-exploit — attacker uses access; may try to persist or exfiltrate.
+
+Cover tracks / pivot — delete traces, move laterally.
+
+Psych tricks used: authority, scarcity/urgency, social proof, liking/rapport, curiosity, reciprocity.
+
+
+---------------------------------------------------------------------------------------------------------------
+
+
+Common attack types (with short, clear defs)
+
+Phishing (email) — mass or targeted email meant to get credentials or malicious files.
+
+Spear-phishing: targeted to a specific person/group.
+
+Whaling: targets high-value people (C-level).
+
+Clone/phishing kit: copy of a legitimate email with malicious link.
+
+Smishing — SMS-based phishing.
+
+Vishing — voice (phone) phishing (pretend to be helpdesk/IT/bank).
+
+Baiting — offer something tempting (USB drop with malware).
+
+Pretexting / impersonation — pretend to be someone legitimate to get info/access.
+
+Quid pro quo — attacker offers help in exchange for access (e.g., “I’ll reset your password — give me one-time code”).
+
+Tailgating / piggybacking — physically following someone into a restricted area.
+
+Shoulder-surfing — watching someone’s screen / keyboard to capture credentials.
+
+Watering-hole — compromise a site commonly visited by target org.
+
+Social media profile attacks / OSINT abuse — use public posts to craft believable lures.
+
+
+---------------------------------------------------------------------------------------------------------------------------
+
+
+Social-Engineer Toolkit (SET) — what it is (high level & ethical use)
+
+What it is: SET is an open-source framework (in Kali) that bundles social engineering attack templates (phishing pages, credential harvesters, mailer spoofing helpers, etc.) designed for pentesting.
+
+Important: SET is a dual-use tool. Only use it in a controlled lab or a legal/consented engagement. Never target real people/organizations without permission.
+
+Safe practice: Use SET in an isolated VM lab with your own test target VM and test accounts. Use it to learn how attacks are constructed, then focus on detection and mitigation.
+
+
+---------------------------------------------------------------------------------------------------------------------------
+
+
+How defenders detect and spot social engineering (practical signs)
+
+Sender address doesn’t match corporate domain (or uses lookalike domain).
+
+Mismatched display name vs. actual email header.
+
+Generic greeting instead of personal name.
+
+Urgent/pressure language: “immediate”, “suspend”, “final notice”.
+
+Unexpected attachments or links — especially shortened URLs.
+
+Poor grammar/typos or odd phrasing.
+
+Requests for unusual actions (send credentials, install software, transfer money).
+
+Phone calls asking for codes or password resets.
+
+Requests to use nonstandard communication channels (e.g., move to WhatsApp).
+
+Tip: verify by a secondary channel (call known number) before taking risky actions.
+
+
+---------------------------------------------------------------------------------------------------------------------------
+
+
+Technical & procedural mitigations (quick)
+
+User training & phishing drills (regular awareness + simulated phishing with consent).
+
+Email security: SPF, DKIM, DMARC, anti-phish gateway, attachment sandboxing.
+
+2FA / MFA — especially for remote access and email accounts.
+
+Least privilege — minimum rights for users.
+
+Endpoint protection & EDR — detect odd behaviors after a click.
+
+Web filtering / DNS filtering — block malicious domains.
+
+Physical controls — visitor badging, mantraps, tailgate detection.
+
+Incident response plan — steps for suspected phishing compromise.
+
+Logging & monitoring — correlate email clicks with C2/traffic.
+
+
+---------------------------------------------------------------------------------------------------------------------------
+
+
+Safe lab/practice ideas (ethical)
+
+(These are high-level — intended for learning, not for misuse.)
+
+Set up two VMs (attacker Kali, victim Windows) on an isolated host-only network. Create a test user account on victim.
+
+Capture network traffic and endpoint logs while simulating harmless email/link clicks to see detection behavior.
+
+Analyze real phishing emails safely: inspect headers, check URLs by copy-pasting into a text analyzer (don’t click). Use VirusTotal to analyze attachments/URLs safely.
+
+Practice role-play: craft pretext scripts and run awareness exercises with consenting friends/colleagues.
+
+Build a detection exercise: plant a benign but suspicious link, check how mail filters/EDR respond.
+
+
+---------------------------------------------------------------------------------------------------------------------------
+
+
+Short cheat-sheet (memory aid)
+
+Key psychology: Authority, Scarcity, Urgency, Reciprocity, Liking, Social proof.
+
+Phishing types: phishing, spear-phish, whaling, smishing, vishing.
+
+Other types: pretexting, baiting, tailgating, watering-hole.
+
+Defenses: MFA, SPF/DKIM/DMARC, email filtering, user training, EDR/Logging.
+
+Tool note: SET = toolkit for social-engineering pentests (use only in consented lab/engagement).
+
+---------------------------------------------------------------------------------------------------------------------------
+
+Study & exam tips
+
+Memorize differences: phishing vs spear-phishing vs whaling.
+
+Be able to list 4-6 psychological principles attackers rely on.
+
+Practice analyzing one phishing email: identify 6 red flags.
+
+Learn the purpose of SPF/DKIM/DMARC and why they matter for email authentication.
+
